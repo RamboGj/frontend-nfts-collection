@@ -102,14 +102,17 @@ function App() {
         return
       }
 
-      const accounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      })
-
-      setIsConnected(true)
-      console.log("Conectado", accounts[0])
-
-      setupEventListener()
+      if (ethereum.request) {
+        const accounts = await ethereum.request({
+          method: "eth_requestAccounts",
+        })
+  
+        setIsConnected(true)
+        console.log("Conectado", accounts[0])
+  
+        setupEventListener()
+      }
+      
     } catch (error) {
       console.log(error)
     }
@@ -119,7 +122,7 @@ function App() {
     try {
       const { ethereum } = window
 
-      if (ethereum) {
+      if (ethereum && ethereum.request) {
         let chainId = await ethereum.request({ method: 'eth_chainId' });
         console.log("Conectado à rede " + chainId);
         // String, hex code of the chainId of the Rinkebey test network
@@ -146,25 +149,26 @@ function App() {
       console.log("Ethreum: ", ethereum)
     }
 
-    const accounts = await ethereum.request({ method: "eth_accounts" })
-  
-    if (accounts.length !== 0) {
-      const account = accounts[0]
-      console.log("Conta autorizada!")
+    if (ethereum.request) {
+      const accounts = await ethereum.request({ method: "eth_accounts" })
 
-      setIsConnected(true)
-      setupEventListener()
-    } else {
-      console.log("Nenhuma conta autorizada!")
-    }
+      if (accounts.length !== 0) {
+        const account = accounts[0]
+        console.log("Conta autorizada!")
   
+        setIsConnected(true)
+        setupEventListener()
+      } else {
+        console.log("Nenhuma conta autorizada!")
+      }
+    }
   }
 
   useEffect(() => {
     checkIfWalletIsConnected()
     verifyWalletChain()
     getNumberOfNftsMinted()
-  }, [nftsMinted])
+  }, [nftsMinted, isConnected])
 
   return (
     <div className="w-screen h-screen">
@@ -176,7 +180,7 @@ function App() {
             <button 
               type="button" 
               onClick={handleConnectWallet} 
-              className="max-w-[320px] w-full text-center bg-orange-500"
+              className="font-bold mt-16 w-10/12 md:w-full md:max-w-[720px] mx-auto flex items-center text-center justify-center gap-x-2 bg-orange-500 border-0 text-black px-2 py-4 rounded-xl hover:bg-orange-700 transtion duration-500"
             >
               Conectar Carteira
             </button>
@@ -187,6 +191,7 @@ function App() {
               <div>
                 <img src={img} alt="" className="mx-auto"/>
                 <button 
+                  disabled={nftsMinted >= 50}
                   type="button" 
                   onClick={askContractToMint}
                   className="font-bold mt-16 max-w-[720px] w-full flex items-center text-center justify-center gap-x-2 bg-orange-500 border-0 text-black px-2 py-4 rounded-xl hover:bg-orange-700 transtion duration-500"
@@ -205,6 +210,9 @@ function App() {
                     }
                     {!isLoading && !isMinting && 
                       <span>Mint NFT {`(Minted : ${nftsMinted}/50)`}</span>
+                    }
+                    {nftsMinted >= 50 && 
+                      <span>All NFTs were minted {`(Minted : ${nftsMinted}/50)`}</span>
                     }
                 </button>
               </div>
