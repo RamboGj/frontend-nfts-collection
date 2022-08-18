@@ -11,7 +11,7 @@ function App() {
   const [isMinting, setIsMinting] = useState<boolean>(false)
   const [isLoading, setIsLoading]= useState<boolean>(false)
 
-  const CONTRACT_ADDRESS = "0x9F6bb83fb4B68809D4322E16A1c6fC1Ad8165789"
+  const CONTRACT_ADDRESS = "0x9b22b2A0C37c0B2C7f88BbF1beCa3Dfd371025dA"
 
   async function askContractToMint() {
     try {
